@@ -69,6 +69,49 @@ services:
         image: haugene/transmission-openvpn
 ```
 
+### Docker Compose with Docker secrets
+
+Place a file called vpn_password.txt in the same directory
+as the docker-compose.yaml file with a single line containing
+the vpn password.
+
+By setting appropriate permissions on this file and excluding
+it from the repository, the docker-compose file can be checked
+in without exposing the VPN password.
+
+The environment variable FILE__OPENVPN_PASSWORD must contain
+the name of a filename which contains the password, in this 
+case /run/secrets/vpn_password is set by the [Docker secrets](https://docs.docker.com/engine/swarm/secrets/#use-secrets-in-compose)
+facility.
+
+```
+version: '3.3'
+services:
+    transmission-openvpn:
+        cap_add:
+            - NET_ADMIN
+        volumes:
+            - '/your/storage/path/:/data'
+        environment:
+            - OPENVPN_PROVIDER=PIA
+            - OPENVPN_CONFIG=france
+            - OPENVPN_USERNAME=user
+			- FILE__OPENVPN_PASSWORD=/run/secrets/vpn_password
+            - LOCAL_NETWORK=192.168.0.0/16
+        logging:
+            driver: json-file
+            options:
+                max-size: 10m
+        ports:
+            - '9091:9091'
+        image: haugene/transmission-openvpn
+		secrets:
+			- vpn_password
+		
+secrets:
+	vpn_password:
+		file: ./vpn_password.txt
+```
 ## Please help out (about:maintenance)
 This image was created for my own use, but sharing is caring, so it had to be open source.
 It has now gotten quite popular, and that's great! But keeping it up to date, providing support, fixes

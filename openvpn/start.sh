@@ -39,6 +39,12 @@ fi
 # This basically means to figure out the config file to use as well as username/password
 ##
 
+# If a password file was provided, read the password from here
+# (useful for using docker secrets)
+if [[ -n $FILE__OPENVPN_PASSWORD ]]; then
+	OPENVPN_PASSWORD=$(< "$FILE__OPENVPN_PASSWORD")
+fi
+
 # If no OPENVPN_PROVIDER is given, we default to "custom" provider.
 VPN_PROVIDER="${OPENVPN_PROVIDER:-custom}"
 VPN_PROVIDER="${VPN_PROVIDER,,}" # to lowercase
